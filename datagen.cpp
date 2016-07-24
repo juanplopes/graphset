@@ -27,7 +27,12 @@ bool backtrack(double threshold, int bits, int v) {
         }
         cout << "], \"S\":[";
         for(int i=0; i<n; i++) {
-            cout << (i>0?",":"") << S[i];
+            cout << (i>0?",":"") << S[O[i]];
+        }
+        
+        cout << "], \"D\":[";
+        for(int i=0; i<n; i++) {
+            cout << (i>0?",":"") << D[O[i]];
         }
         cout << "]}," << endl;
     
@@ -57,6 +62,7 @@ int main() {
     int total = 0;
     while(cin >> n >> m) {
         memset(G, 0, sizeof G);
+        memset(D, 0, sizeof D);
         for(int i = 0; i < m; i++) {
             int a, b; cin >> a >> b;
             G[a][b] = G[b][a] = true;
@@ -75,7 +81,10 @@ int main() {
                 found = true;
             }
         }
-        if (!found)
+        if (!found) {
             cerr << "NOT" << endl;
+            return 1;
+        }
     }
+    return 0;
 }
