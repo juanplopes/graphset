@@ -113,7 +113,9 @@
         <div class="graph-list">
             
         </div>
-        <div class="main-graph"></div>
+        <div class="main-graph">
+            <div id="canvas"/>
+        </div>
     </div>
 </div>
 
@@ -162,7 +164,27 @@
             var b = '<span class="cardinality">b'+data[index].b+'</span>';
             var el = $('<div class="item"><img src="thumbs/' + index + '.svg" /><div class="legend">' + n+b +'</div></div>');
             el.on('click', function() {
-                $('.main-graph').html(toSVG(data[index]));
+                $('#canvas').html('');
+                var cont = $('.main-graph');
+                var g = new Graph();
+
+                for(var i=0; i<data[index].G.length; i++) {
+                    for(var j=i+1; j<data[index].G.length; j++) {
+                        var a = popc(data[index].S[i]&data[index].S[j]);
+                        var b = popc(data[index].S[i]|data[index].S[j]);
+                    
+
+                        if (data[index].G[i] & (1<<j))
+                            g.addEdge('a' + i, 'a' + j, {label:a+'/'+b, fill: 'blue', color: 'white'});
+                    }
+                }
+                 
+                var layouter = new Graph.Layout.Spring(g);
+                layouter.layout();
+                 
+                var renderer = new Graph.Renderer.Raphael('canvas', g, cont.width(), cont.height());
+                renderer.draw();
+                //$('.main-graph').html(toSVG(data[index]));
             });
             return el;
         }
