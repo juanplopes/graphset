@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<title>Graphsets visualizer</title>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href='material/bootstrap.min.css' rel='stylesheet' type='text/css'>
+<link href='material/material.min.css' rel='stylesheet' type='text/css'>
+<link href='material/ripples.min.css' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Roboto:500,300,700,400' rel='stylesheet' type='text/css'>
+
+<style>
+    body {
+        font-family: sans-serif;
+    }
+    
+    .main {
+        height: 100%;
+    }
+    
+    .content {
+        vertical-align: middle;
+        position: absolute;
+        top: 85px;
+        bottom: 0;
+    }
+    
+    .header {
+        background-color: #00aff0;
+        box-shadow: 0 1px 0 #00a6e4;
+        color: #fff;
+        padding: 8px;
+        margin-bottom: 30px;
+        z-index: 1000;
+        position: relative;
+        height: 85px;
+    }
+   
+    .header h1 {
+        color: #fff;
+        font-weight: bold;
+    }
+    
+    .main-graph {
+        float:left;
+        width: 64%;
+        position: relative;
+        height: 100%;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .main-graph svg {
+        height: 100%;
+    }
+    
+    .graph-list {
+        float:left;
+        width: 35%;
+        position: relative;
+        height: 100%;
+        left: 0;
+        border-right: 2px solid #666;
+        text-align: center;
+        overflow: auto;
+    }
+    
+    .graph-list .item {
+        display: inline-block;
+        margin: 5px;
+        background-color: white;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+    .graph-list .item:hover {
+        opacity: 0.9;
+        border: 1px solid black;
+    }
+
+
+    .graph-list .item img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .graph-list .item .legend {
+        height: 20px;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .graph-list .item .legend .nodes {
+        background-color: #00aff0;
+        display: inline-block;
+        width: 50%;
+    }
+    
+    .graph-list .item .legend .cardinality {
+        background-color: #D9534F;
+        display: inline-block;
+        width: 50%;
+    }
+
+
+</style>
+
+<div class="main">
+    <div class="header"><h1>Graph nodes set representation</h1></div>
+    <div class="content">
+        <div class="graph-list">
+            
+        </div>
+        <div class="main-graph"></div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="data.js"></script>
+<script src="viz.js"></script>
+
+<script src="dracula/raphael-min.js"></script>
+<script src="dracula/dracula_graph.js"></script>
+<script src="dracula/dracula_graffle.js"></script>
+
+<script>
+    (function() {
+        function popc(i) {
+             i = i - ((i >> 1) & 0x55555555);
+             i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
+             return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+        }
+    
+        function toSVG(graph) {
+            var repr = ['graph {bgcolor=transparent; graph [fontname = "roboto"]; node [nodesep=4,fontname = "roboto"]; edge [fontname = "roboto", fontsize="10px"];'];
+            for(var i=0; i<graph.n; i++) {
+                var nodeLabel = [];
+                for(var j=0; j<graph.b; j++) {
+                    if (graph.S[i] & (1<<j))
+                        nodeLabel.push((j+1));
+                }
+            
+                repr.push(i + '[fillcolor=white, style=filled, label="' + nodeLabel.join(' ') + '"];');
+            }
+            for(var i=0; i<graph.G.length; i++) {
+                for(var j=i+1; j<graph.G.length; j++) {
+                    var a = popc(graph.S[i]&graph.S[j]);
+                    var b = popc(graph.S[i]|graph.S[j]);
+                
+                    if (graph.G[i] & (1<<j))
+                        repr.push(i + '--' + j + '[len=3;label="' + a + '/' + b + '"];');
+                }
+            }
+            repr.push('}');
+            return Viz(repr.join(''), 'svg', 'neato');        
+        }
+        
+        function makeThumb(index) {
+            var n = '<span class="nodes">n'+data[index].n+'</span>';
+            var b = '<span class="cardinality">b'+data[index].b+'</span>';
+            var el = $('<div class="item"><img src="thumbs/' + index + '.svg" /><div class="legend">' + n+b +'</div></div>');
+            el.on('click', function() {
+                $('.main-graph').html(toSVG(data[index]));
+            });
+            return el;
+        }
+    
+        var test = $('.graph-list');
+
+        for(var i=0; i<100; i++) {
+            setTimeout(function(i) {
+                test.append(makeThumb(i));
+            }.bind(i, i), 0);
+        }
+    
+        
+    })();
+    
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-5988212-2']);
+    _gaq.push(['_setDomainName', 'none']);
+    _gaq.push(['_setAllowLinker', true]);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+
