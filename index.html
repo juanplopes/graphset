@@ -277,7 +277,7 @@
             setUrl();
         
             text = text.trim();
-            var dSearch = null, nSearch = null, bSearch = null;
+            var dSearch = null, nSearch = null, bSearch = null, iSearch = null;
             
         
             if (text[0] == 'n')
@@ -286,16 +286,24 @@
                 bSearch = text.substring(1);
             else if (text != '') {
                 dSearch = text.split(/[^\d]+/);
-                dSearch.sort(function(a, b) { return b-a; });
+                if (dSearch.length == 1) {
+                    iSearch = +dSearch[0];
+                    dSearch = null;
+                } else {
+                    dSearch.sort(function(a, b) { return b-a; });
+                }
             }
                 
             var filtered = [];
+            console.log(iSearch);
             for(var i=0; i<data.length; i++) {
-                if (dSearch) 
+                if (iSearch != null)
+                    i == iSearch && filtered.push(i);
+                else if (dSearch != null) 
                     arrayEquals(data[i].D, dSearch) && filtered.push(i);
-                else if (nSearch)
+                else if (nSearch != null)
                     data[i].n == nSearch && filtered.push(i);
-                else if (bSearch)
+                else if (bSearch != null)
                     data[i].b == bSearch && filtered.push(i);
                 else
                     filtered.push(i)
@@ -345,7 +353,6 @@
         $(window).bind('resize', function() { setGraph(state.id); });
         
         var params = window.location.hash.substring(1).split('/');
-        console.log(params);
         setGraph(+(params[0]||Math.floor(Math.random()*data.length)));
         setSearch(params[1]||'');
         
