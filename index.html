@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<title>Graphsets visualizer</title>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href='material/bootstrap.min.css' rel='stylesheet' type='text/css'>
+<link href='material/material.min.css' rel='stylesheet' type='text/css'>
+<link href='material/ripples.min.css' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Roboto:500,300,700,400' rel='stylesheet' type='text/css'>
+
+<style>
+    * {
+        -webkit-box-sizing: border-box;
+           -moz-box-sizing: border-box;
+                box-sizing: border-box;
+    }
+
+    body {
+        font-family: sans-serif;
+    }
+    
+    .main {
+        height: 100%;
+    }
+    
+    .content {
+        vertical-align: middle;
+        position: absolute;
+        top: 42px;
+        bottom: 0;
+        width: 100%;
+    }
+    
+    .header {
+        background-color: #00aff0;
+        box-shadow: 0 1px 0 #00a6e4;
+        color: #fff;
+        padding: 8px;
+        margin-bottom: 30px;
+        z-index: 1000;
+        position: relative;
+        height: 42px;
+    }
+   
+    .header h1 {
+        color: #fff;
+        font-weight: bold;
+    }
+    
+    .main-graph {
+        float:left;
+        width: 64%;
+        position: relative;
+        height: 100%;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .main-graph svg {
+        height: 100%;
+    }
+    
+    .graph-list {
+        position: relative;
+        float:left;
+        width: 35%;
+        height: 100%;
+        left: 0;
+        border-right: 2px solid #666;
+        text-align: center;
+    }
+    
+    .search {
+        width: 100%;
+        padding: 10px;
+        height: 65px;
+    }
+    
+    .search-input-container {
+        position: absolute;
+        left: 10px;
+        right: 80px;
+    }
+    
+    .search input {
+        width: 100%;
+        font-size: 18px;
+        border: 1px solid #666;
+        color: #333;
+        padding: 10px;
+    }
+    
+    .search button {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        height: 47px;
+        width: 60px;
+        background-color: #00aff0;
+        font-size: 18px;
+        border: 1px solid #005fa0;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .search button:hover {
+        opacity: 0.8;
+    }
+    
+    .search button:active {
+        opacity: 0.6;
+    }
+    
+    .search-status span {
+        font-weight: bold;
+    }
+    
+    
+    .result-list {
+        position: absolute;
+        top: 90px;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        overflow: auto;
+        border-top: 1px solid #666;
+    }
+    
+    .graph-list .item {
+        display: inline-block;
+        margin: 5px;
+        background-color: white;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+    .graph-list .item:hover {
+        opacity: 0.9;
+        border: 1px solid black;
+    }
+
+
+    .graph-list .item img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .graph-list .item .legend {
+        height: 20px;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .graph-list .item .legend .nodes {
+        background-color: #00aff0;
+        display: inline-block;
+        width: 50%;
+    }
+    
+    .graph-list .item .legend .cardinality {
+        background-color: #D9534F;
+        display: inline-block;
+        width: 50%;
+    }
+
+
+</style>
+
+<div class="main">
+    <div class="header"></div>
+    <div class="content">
+        <div class="graph-list">
+            <div class="search">
+                <div class="search-input-container">
+                    <input placeholder="E.g. '1 1 2 2' (degree list), 'n5', 'b10'"/>
+                </div>
+                <button>go</button>
+            </div>
+            <div class="search-status">
+                Showing <span class="showing">0</span> of <span class="total">0</span> graphs. <a class="show-more" href="#">(show more)</a>
+            </div>
+            
+            <div class="result-list">
+            </div>
+        </div>
+        <div class="main-graph" id="canvas">
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="data.js"></script>
+
+<script src="dracula/raphael-min.js"></script>
+<script src="dracula/dracula_graph.js"></script>
+<script src="dracula/dracula_graffle.js"></script>
+
+<script>
+    (function() {
+        var state = {
+            id: null,
+            filtered: null
+        };
+        
+        function setUrl() {
+            window.location.hash = [state.id, state.filter||''].join('/');
+        }
+    
+        function popc(i) {
+             i = i - ((i >> 1) & 0x55555555);
+             i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
+             return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
+        }
+    
+        function setGraph(index) {
+            state.id = index;
+            setUrl();
+        
+            var graph = data[index];
+            var cont = $('.main-graph').html('');
+            var g = new Graph();
+
+            for(var i=0; i<graph.G.length; i++) {
+                var items = [];
+                for(var j=0; j<graph.b; j++) {
+                    if (graph.S[i] & (1<<j))
+                        items.push(j+1);
+                }
+                
+                g.addNode('a'+i, { label: items, render: function(r, n) {
+            /* the Raphael set is obligatory, containing all you want to display */
+                    var set = r.set()
+                        .push(r.rect(n.point[0]-30, n.point[1]-30, 60, 60).attr({"fill": "white", r : "12px", "stroke-width" : n.distance == 0 ? "3px" : "1px" }));
+                    
+                    if (n.label.length > 3) {
+                         var aa = n.label.slice(0, (n.label.length+1)/2),
+                             bb = n.label.slice(n.label.length/2);
+                         set = set
+                             .push(r.text(n.point[0], n.point[1]-10, aa.join(' ')).attr('font-weight', 'bold'))
+                             .push(r.text(n.point[0], n.point[1]+10, bb.join(' ')).attr('font-weight', 'bold'));
+                    } else {
+                         set = set
+                             .push(r.text(n.point[0], n.point[1], n.label.join(' ')).attr('font-weight', 'bold'));
+                    }
+                    return set;
+                }});
+       
+            }
+            for(var i=0; i<graph.G.length; i++) {
+                for(var j=i+1; j<graph.G.length; j++) {
+                    var a = popc(graph.S[i]&graph.S[j]);
+                    var b = popc(graph.S[i]|graph.S[j]);
+
+                    if (graph.G[i] & (1<<j))
+                        g.addEdge('a' + i, 'a' + j, {label:a+'/'+b});
+                }
+            }
+             
+            var layouter = new Graph.Layout.Spring(g);
+            layouter.layout();
+             
+            var renderer = new Graph.Renderer.Raphael('canvas', g, cont.width(), cont.height());
+            renderer.draw();
+        }
+
+        function arrayEquals(array1, array2) {
+            return (array1.length == array2.length) && array1.every(function(element, index) {
+                return element == array2[index]; 
+            });
+        }
+
+        function filter(text) {
+            state.filter = text;
+            setUrl();
+        
+            text = text.trim();
+            var dSearch = null, nSearch = null, bSearch = null;
+            
+        
+            if (text[0] == 'n')
+                nSearch = text.substring(1);            
+            else if (text[0] == 'b')
+                bSearch = text.substring(1);
+            else if (text != '') {
+                dSearch = text.split(/[^\d]+/);
+                dSearch.sort(function(a, b) { return b-a; });
+            }
+                
+            var filtered = [];
+            for(var i=0; i<data.length; i++) {
+                if (dSearch) 
+                    arrayEquals(data[i].D, dSearch) && filtered.push(i);
+                else if (nSearch)
+                    data[i].n == nSearch && filtered.push(i);
+                else if (bSearch)
+                    data[i].b == bSearch && filtered.push(i);
+                else
+                    filtered.push(i)
+            }
+            return filtered;
+        
+        }
+        
+        function setSearch(text) {
+            state.filtered = filter(text);
+            state.shown = 0;
+            $('.search input').val(text);
+            $('.result-list').html('');
+            showResults(100);
+        }
+        
+        function showResults(more) {
+            var result = $('.result-list');
+            var toShow = Math.min(state.shown+more, state.filtered.length)
+            for(var i=state.shown; i<toShow; i++) {
+                result.append(makeThumb(state.filtered[i]));
+            }
+            state.shown = toShow;
+            
+            $('.search-status .showing').text(state.shown);
+            $('.search-status .total').text(state.filtered.length);
+            
+            if (state.shown == state.filtered.length)
+                $('.search-status .show-more').hide();
+            else
+                $('.search-status .show-more').show();
+        }
+        
+        function makeThumb(index) {
+            var n = '<span class="nodes">n'+data[index].n+'</span>';
+            var b = '<span class="cardinality">b'+data[index].b+'</span>';
+            var el = $('<div class="item"><img src="thumbs/' + index + '.svg" /><div class="legend">' + n+b +'</div></div>');
+            el.on('click', function() {
+                setGraph(index);
+            });
+            return el;
+        }
+        
+        $('.search button').on('click', function() { setSearch($('.search input').val()); });
+        $('.search input').on('keydown', function(e) { if (e.which == 13) setSearch($('.search input').val()); });
+        $('.search-status .show-more').on('click', function(e) { showResults(100); e.preventDefault(); return false; });
+        $(window).bind('resize', function() { setGraph(state.id); });
+        
+        var params = window.location.hash.substring(1).split('/');
+        console.log(params);
+        setGraph(+(params[0]||Math.floor(Math.random()*data.length)));
+        setSearch(params[1]||'');
+        
+    })();
+    
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-5988212-2']);
+    _gaq.push(['_setDomainName', 'none']);
+    _gaq.push(['_setAllowLinker', true]);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+
