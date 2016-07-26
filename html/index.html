@@ -237,7 +237,7 @@
                     
                     if (n.label.length > 3) {
                          var aa = n.label.slice(0, (n.label.length+1)/2),
-                             bb = n.label.slice(n.label.length/2);
+                             bb = n.label.slice((n.label.length+1)/2);
                          set = set
                              .push(r.text(n.point[0], n.point[1]-10, aa.join(' ')).attr('font-weight', 'bold'))
                              .push(r.text(n.point[0], n.point[1]+10, bb.join(' ')).attr('font-weight', 'bold'));
