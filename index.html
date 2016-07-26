@@ -12,6 +12,12 @@
 <link href='http://fonts.googleapis.com/css?family=Roboto:500,300,700,400' rel='stylesheet' type='text/css'>
 
 <style>
+    * {
+        -webkit-box-sizing: border-box;
+           -moz-box-sizing: border-box;
+                box-sizing: border-box;
+    }
+
     body {
         font-family: sans-serif;
     }
@@ -25,6 +31,7 @@
         position: absolute;
         top: 85px;
         bottom: 0;
+        width: 100%;
     }
     
     .header {
@@ -57,14 +64,64 @@
     }
     
     .graph-list {
+        position: relative;
         float:left;
         width: 35%;
-        position: relative;
         height: 100%;
         left: 0;
         border-right: 2px solid #666;
         text-align: center;
+    }
+    
+    .search {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .search-input-container {
+        position: absolute;
+        left: 10px;
+        right: 80px;
+    }
+    
+    .search input {
+        width: 100%;
+        font-size: 18px;
+        border: 1px solid #666;
+        color: #333;
+        padding: 10px;
+    }
+    
+    .search button {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        height: 47px;
+        width: 60px;
+        background-color: #00aff0;
+        font-size: 18px;
+        border: 1px solid #005fa0;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .search button:hover {
+        opacity: 0.8;
+    }
+    
+    .search button:active {
+        opacity: 0.6;
+    }
+    
+    
+    .result-list {
+        position: absolute;
+        top: 65px;
+        bottom: 0;
+        left: 0;
+        right: 0;
         overflow: auto;
+        border-top: 1px solid #666;
     }
     
     .graph-list .item {
@@ -111,10 +168,16 @@
     <div class="header"><h1>Graph nodes set representation</h1></div>
     <div class="content">
         <div class="graph-list">
-            
+            <div class="search">
+                <div class="search-input-container">
+                    <input placeholder="E.g. '1 1 2 2' (degree list), 'n5', 'b10'"/>
+                </div>
+                <button>go</button>
+            </div>
+            <div class="result-list">
+            </div>
         </div>
-        <div class="main-graph">
-            <div id="canvas"/>
+        <div class="main-graph" id="canvas">
         </div>
     </div>
 </div>
@@ -135,28 +198,30 @@
              return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
         }
     
-        function toSVG(graph) {
-            var repr = ['graph {bgcolor=transparent; graph [fontname = "roboto"]; node [nodesep=4,fontname = "roboto"]; edge [fontname = "roboto", fontsize="10px"];'];
-            for(var i=0; i<graph.n; i++) {
-                var nodeLabel = [];
-                for(var j=0; j<graph.b; j++) {
-                    if (graph.S[i] & (1<<j))
-                        nodeLabel.push((j+1));
-                }
-            
-                repr.push(i + '[fillcolor=white, style=filled, label="' + nodeLabel.join(' ') + '"];');
-            }
+        function drawGraph(graph) {
+            var cont = $('.main-graph').html('');
+            var g = new Graph();
+
             for(var i=0; i<graph.G.length; i++) {
                 for(var j=i+1; j<graph.G.length; j++) {
                     var a = popc(graph.S[i]&graph.S[j]);
                     var b = popc(graph.S[i]|graph.S[j]);
                 
+
                     if (graph.G[i] & (1<<j))
-                        repr.push(i + '--' + j + '[len=3;label="' + a + '/' + b + '"];');
+                        g.addEdge('a' + i, 'a' + j, {label:a+'/'+b});
                 }
             }
-            repr.push('}');
-            return Viz(repr.join(''), 'svg', 'neato');        
+             
+            var layouter = new Graph.Layout.Spring(g);
+            layouter.layout();
+             
+            var renderer = new Graph.Renderer.Raphael('canvas', g, cont.width(), cont.height());
+            renderer.draw();
+        }
+        
+        function setSearch(text) {
+            
         }
         
         function makeThumb(index) {
@@ -164,32 +229,12 @@
             var b = '<span class="cardinality">b'+data[index].b+'</span>';
             var el = $('<div class="item"><img src="thumbs/' + index + '.svg" /><div class="legend">' + n+b +'</div></div>');
             el.on('click', function() {
-                $('#canvas').html('');
-                var cont = $('.main-graph');
-                var g = new Graph();
-
-                for(var i=0; i<data[index].G.length; i++) {
-                    for(var j=i+1; j<data[index].G.length; j++) {
-                        var a = popc(data[index].S[i]&data[index].S[j]);
-                        var b = popc(data[index].S[i]|data[index].S[j]);
-                    
-
-                        if (data[index].G[i] & (1<<j))
-                            g.addEdge('a' + i, 'a' + j, {label:a+'/'+b, fill: 'blue', color: 'white'});
-                    }
-                }
-                 
-                var layouter = new Graph.Layout.Spring(g);
-                layouter.layout();
-                 
-                var renderer = new Graph.Renderer.Raphael('canvas', g, cont.width(), cont.height());
-                renderer.draw();
-                //$('.main-graph').html(toSVG(data[index]));
+                drawGraph(data[index]);
             });
             return el;
         }
     
-        var test = $('.graph-list');
+        var test = $('.result-list');
 
         for(var i=0; i<100; i++) {
             setTimeout(function(i) {
