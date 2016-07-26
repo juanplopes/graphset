@@ -164,6 +164,10 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
         this.dy = e.clientY;
         selfRef.isDrag = this;
         this.set && this.set.animate({"fill-opacity": .5}, 200) && this.set.toFront();
+        this.set && (this.set.isSelected = true);
+        for (var i in selfRef.graph.edges) {
+            selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
+        }    
         e.preventDefault && e.preventDefault();
     };
     
@@ -189,8 +193,12 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
         }
     };
     d.onmouseup = function () {
+        selfRef.isDrag && (selfRef.isDrag.set.isSelected = false);
         selfRef.isDrag && selfRef.isDrag.set.animate({"fill-opacity": 1}, 500);
         selfRef.isDrag = false;
+        for (var i in selfRef.graph.edges) {
+            selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
+        }    
     };
     this.draw();
 };

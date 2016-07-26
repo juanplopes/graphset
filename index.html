@@ -280,11 +280,16 @@
             var dSearch = null, nSearch = null, bSearch = null, iSearch = null;
             
         
-            if (text[0] == 'n')
-                nSearch = text.substring(1);            
-            else if (text[0] == 'b')
-                bSearch = text.substring(1);
-            else if (text != '') {
+            if (text[0] == 'n' || text[0] == 'b') {
+                splitted = text.split(/[^\d\w]+/);
+
+                for(var i=0; i<splitted.length; i++) {
+                    if (splitted[i][0] == 'n')
+                        nSearch = splitted[i].substring(1);
+                    if (splitted[i][0] == 'b')
+                        bSearch = splitted[i].substring(1);
+                }
+            } else if (text != '') {
                 dSearch = text.split(/[^\d]+/);
                 if (dSearch.length == 1) {
                     iSearch = +dSearch[0];
@@ -295,16 +300,16 @@
             }
                 
             var filtered = [];
-            console.log(iSearch);
+            console.log(nSearch, bSearch);
             for(var i=0; i<data.length; i++) {
                 if (iSearch != null)
                     i == iSearch && filtered.push(i);
                 else if (dSearch != null) 
                     arrayEquals(data[i].D, dSearch) && filtered.push(i);
-                else if (nSearch != null)
-                    data[i].n == nSearch && filtered.push(i);
-                else if (bSearch != null)
-                    data[i].b == bSearch && filtered.push(i);
+                else if (nSearch != null || bSearch != null)
+                    (nSearch == null || data[i].n == nSearch) &&
+                    (bSearch == null || data[i].b == bSearch) &&
+                     filtered.push(i);
                 else
                     filtered.push(i)
             }

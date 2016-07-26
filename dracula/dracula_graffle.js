@@ -35,10 +35,13 @@ Raphael.fn.connection = function (obj1, obj2, style) {
             /* assemble path and arrow */
             var path = ["M", x1.toFixed(3), y1.toFixed(3), "L", x4.toFixed(3), y4.toFixed(3)].join(",");
             
+            var width = (obj1.isSelected || obj2.isSelected) ? '3px' : '1px';
+            var color = (obj1.isSelected || obj2.isSelected) ? '#D9534F' : 'black'
+            
             if (!edge.fg)
-                edge.fg = selfRef.path(path).attr({stroke: "#000", fill: "none"}).toBack();
+                edge.fg = selfRef.path(path).attr({stroke: color, fill: "none", 'stroke-width': width}).toBack();
             else
-                edge.fg.attr({path:path});
+                edge.fg.attr({path:path,'stroke-width': width, stroke: color});
     
         
             var padding = 3;
