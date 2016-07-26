@@ -43,7 +43,7 @@ Raphael.fn.connection = function (obj1, obj2, style) {
         
             var padding = 3;
             if (!edge.label) {
-                edge.label = selfRef.text((x1+x4)/2, (y1+y4)/2, style.label).attr({fill: "white", "font-size": style["font-size"] || "12px"});
+                edge.label = selfRef.text((x1+x4)/2, (y1+y4)/2, style.label).attr({fill: "white", 'font-weight': 'bold', "font-size": style["font-size"] || "12px"});
                 var box = edge.label.getBBox();
                 edge.rect = selfRef.rect(box.x-padding, box.y-padding, box.width+2*padding, box.height+2*padding).attr({r:4, fill: '#00aff0', stroke:'#00aff0'});
                 edge.label.toFront();
