@@ -163,7 +163,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
         this.dx = e.clientX;
         this.dy = e.clientY;
         selfRef.isDrag = this;
-        this.set && this.set.animate({"fill-opacity": .1}, 200) && this.set.toFront();
+        this.set && this.set.animate({"fill-opacity": .5}, 200) && this.set.toFront();
         e.preventDefault && e.preventDefault();
     };
     
@@ -189,7 +189,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
         }
     };
     d.onmouseup = function () {
-        selfRef.isDrag && selfRef.isDrag.set.animate({"fill-opacity": .6}, 500);
+        selfRef.isDrag && selfRef.isDrag.set.animate({"fill-opacity": 1}, 500);
         selfRef.isDrag = false;
     };
     this.draw();
@@ -256,7 +256,7 @@ Graph.Renderer.Raphael.prototype = {
 
         shape = node.render(this.r, node).hide();
 
-        shape.attr({"fill-opacity": .6});
+        //shape.attr({"fill-opacity": .6});
         /* re-reference to the node an element belongs to, needed for dragging all elements of a node */
         shape.items.forEach(function(item){ item.set = shape; item.node.style.cursor = "move"; });
         shape.mousedown(this.dragger);

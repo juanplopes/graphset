@@ -29,7 +29,7 @@
     .content {
         vertical-align: middle;
         position: absolute;
-        top: 85px;
+        top: 42px;
         bottom: 0;
         width: 100%;
     }
@@ -42,7 +42,7 @@
         margin-bottom: 30px;
         z-index: 1000;
         position: relative;
-        height: 85px;
+        height: 42px;
     }
    
     .header h1 {
@@ -165,7 +165,7 @@
 </style>
 
 <div class="main">
-    <div class="header"><h1>Graph nodes set representation</h1></div>
+    <div class="header"></div>
     <div class="content">
         <div class="graph-list">
             <div class="search">
@@ -203,10 +203,35 @@
             var g = new Graph();
 
             for(var i=0; i<graph.G.length; i++) {
+                var items = [];
+                for(var j=0; j<graph.b; j++) {
+                    if (graph.S[i] & (1<<j))
+                        items.push(j+1);
+                }
+                
+                g.addNode('a'+i, { label: items, render: function(r, n) {
+            /* the Raphael set is obligatory, containing all you want to display */
+                    var set = r.set()
+                        .push(r.rect(n.point[0]-30, n.point[1]-30, 60, 60).attr({"fill": "white", r : "12px", "stroke-width" : n.distance == 0 ? "3px" : "1px" }));
+                    
+                    if (n.label.length > 3) {
+                         var aa = n.label.slice(0, (n.label.length+1)/2),
+                             bb = n.label.slice(n.label.length/2);
+                         set = set
+                             .push(r.text(n.point[0], n.point[1]-10, aa.join(' ')).attr('font-weight', 'bold'))
+                             .push(r.text(n.point[0], n.point[1]+10, bb.join(' ')).attr('font-weight', 'bold'));
+                    } else {
+                         set = set
+                             .push(r.text(n.point[0], n.point[1], n.label.join(' ')).attr('font-weight', 'bold'));
+                    }
+                    return set;
+                }});
+       
+            }
+            for(var i=0; i<graph.G.length; i++) {
                 for(var j=i+1; j<graph.G.length; j++) {
                     var a = popc(graph.S[i]&graph.S[j]);
                     var b = popc(graph.S[i]|graph.S[j]);
-                
 
                     if (graph.G[i] & (1<<j))
                         g.addEdge('a' + i, 'a' + j, {label:a+'/'+b});
