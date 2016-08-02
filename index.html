@@ -249,10 +249,15 @@
                         items.push(j+1);
                 }
                 
-                g.addNode('a'+i, { label: items, render: function(r, n) {
-            /* the Raphael set is obligatory, containing all you want to display */
+                g.addNode('a'+i, { index: (graph.O||{})[i], label: items, render: function(r, n) {
                     var set = r.set()
                         .push(r.rect(n.point[0]-30, n.point[1]-30, 60, 60).attr({"fill": "white", r : "12px", "stroke-width" : n.distance == 0 ? "3px" : "1px" }));
+                        
+                    if (n.index != null) {
+                        set = set
+                            .push(r.rect(n.point[0]+30-16, n.point[1]-30, 16, 16).attr({"fill": "#D9534F", r : "4px", "stroke-width" : n.distance == 0 ? "3px" : "1px" }))
+                            .push(r.text(n.point[0]+30-8, n.point[1]-22, ''+n.index).attr({'fill':'white', 'font-weight': 'bold'}));
+                    }
                     
                     if (n.label.length > 3) {
                          var aa = n.label.slice(0, (n.label.length+1)/2),
