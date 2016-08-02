@@ -1,14 +1,15 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#define MAXX 100
 using namespace std;
 
 int n, m;
-unsigned int S[10];
-bool G2[10][10];
-bool G[10][10];
+unsigned int S[MAXX];
+bool G2[MAXX][MAXX];
+bool G[MAXX][MAXX];
 
-int D[10], O[10];
+int D[MAXX], O[MAXX];
 
 bool jaccard(unsigned int x, unsigned int y) {
     unsigned int u = __builtin_popcount(x|y)>>1;
@@ -34,6 +35,10 @@ bool backtrack(int bits, int v) {
         cout << "],\"D\":[";
         for(int i=0; i<n; i++) {
             cout << (i>0?",":"") << D[i];
+        }
+        cout << "],\"O\":[";
+        for(int i=0; i<n; i++) {
+            cout << (i>0?",":"") << O[i];
         }
         cout << "],\"n\":" << n << ",\"b\":" << bits << "}," << endl;
     
@@ -70,6 +75,7 @@ int main() {
             D[a]++;
             D[b]++;
         }
+
         for(int i=0; i<n; i++)
             O[i] = i;
         sort(O, O+n, compare);
