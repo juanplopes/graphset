@@ -16,20 +16,19 @@ def normalize(graph):
     graph['b'] = max(x.bit_length() for x in graph['S'])
 
 
-data = []
-with open(sys.argv[1]) as f:
-    for i, line in enumerate(f):
-        print('Graph #{}'.format(i))
+with open('html/data.js', 'w') as g:
+    data = []
+    with open(sys.argv[1]) as f:
+        for i, line in enumerate(f):
+            print('Graph #{}'.format(i))
 
-        s = line[line.find('{'):line.rfind('}')+1];
-        graph = json.loads(s)
-       
-        normalize(graph)
-        with open('html/thumbs/{}.svg'.format(i), 'wb') as g:
-            g.write(to_svg(graph['G']))
-            
-        data.append(graph)
-        
-with open('html/data.js'.format(i), 'w') as g:
+            s = line[line.find('{'):line.rfind('}')+1];
+            graph = json.loads(s)
+           
+            normalize(graph)
+            with open('html/thumbs/{}.svg'.format(i), 'wb') as g:
+                g.write(to_svg(graph['G']))
+                
+            data.append(graph)
     g.write('var data = {};'.format(json.dumps(data)))
 
