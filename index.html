@@ -10,7 +10,6 @@
 <link href='material/material.min.css' rel='stylesheet' type='text/css'>
 <link href='material/ripples.min.css' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Roboto:500,300,700,400' rel='stylesheet' type='text/css'>
-
 <style>
     * {
         -webkit-box-sizing: border-box;
@@ -249,7 +248,7 @@
                         items.push(j+1);
                 }
                 
-                g.addNode('a'+i, { index: (graph.O||{})[i], label: items, render: function(r, n) {
+                g.addNode('a'+i, { index: (graph.O||{})[i] || i, label: items, render: function(r, n) {
                     var set = r.set()
                         .push(r.rect(n.point[0]-30, n.point[1]-30, 60, 60).attr({"fill": "white", r : "12px", "stroke-width" : n.distance == 0 ? "3px" : "1px" }));
                         
