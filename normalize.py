@@ -25,7 +25,7 @@ with open(sys.argv[1]) as f:
         graph = json.loads(s)
        
         normalize(graph)
-        with open('html/thumbs/{}.svg'.format(i), 'wb') as g:
+        with open('html/thumbs/data_{}.svg'.format(i), 'wb') as g:
             g.write(to_svg(graph['G']))
             
         data.append(graph)
