@@ -248,7 +248,9 @@
                         items.push(j+1);
                 }
                 
-                g.addNode('a'+i, { index: (graph.O||{})[i] || i, label: items, render: function(r, n) {
+                var index = (graph.O||{})[i];
+                if (index == null) index = i;
+                g.addNode('a'+i, { index: index, label: items, render: function(r, n) {
                     var set = r.set()
                         .push(r.rect(n.point[0]-30, n.point[1]-30, 60, 60).attr({"fill": "white", r : "12px", "stroke-width" : n.distance == 0 ? "3px" : "1px" }));
                         
