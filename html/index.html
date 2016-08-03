@@ -368,7 +368,7 @@
         function makeThumb(index) {
             var n = '<span class="nodes">n'+data[index].n+'</span>';
             var b = '<span class="cardinality">b'+data[index].b+'</span>';
-            var el = $('<div class="item"><img src="thumbs/' + index + '.svg" /><div class="legend">' + n+b +'</div></div>');
+            var el = $('<div class="item"><img src="thumbs/data_' + index + '.svg" /><div class="legend">' + n+b +'</div></div>');
             el.on('click', function() {
                 setGraph(index);
             });
