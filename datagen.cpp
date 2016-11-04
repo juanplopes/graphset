@@ -11,9 +11,9 @@ bool G[MAXX][MAXX];
 
 int D[MAXX], O[MAXX];
 
-bool jaccard(unsigned int x, unsigned int y) {
-    unsigned int u = __builtin_popcount(x|y)>>1;
-    return __builtin_popcount(x&y) > u;
+bool jaccard(bool value, unsigned int x, unsigned int y) {
+    unsigned int u = __builtin_popcount(x|y);
+    return value ? __builtin_popcount(x&y)*2 >= u : __builtin_popcount(x&y)*3 <= u;
 }
 
 bool backtrack(int bits, int v) {
@@ -45,11 +45,11 @@ bool backtrack(int bits, int v) {
         return true;
     }
 
-    for(unsigned int x=0; x<(1<<bits); x++) {
+    for(unsigned int x=1; x<(1<<bits); x++) {
 //        if (v==0) cout << "  " << x << endl;
         bool valid = true;
         for(int u=0; valid && u<v; u++) 
-            valid = G[v][u] == jaccard(S[u], x);
+            valid = jaccard(G[v][u], S[u], x);
         
         if (valid) {
             S[v] = x;
@@ -71,22 +71,24 @@ int main() {
         memset(D, 0, sizeof D);
         for(int i = 0; i < m; i++) {
             int a, b; cin >> a >> b;
+            cerr << " " << a << " " << b;
             G2[a][b] = G2[b][a] = true;
             D[a]++;
             D[b]++;
         }
+        cerr << endl;
 
         for(int i=0; i<n; i++)
             O[i] = i;
-        sort(O, O+n, compare);
+//        sort(O, O+n, compare);
         for(int i=0; i<n; i++)
             for(int j=0; j<n; j++)
                 G[i][j] = G2[O[i]][O[j]];
-        sort(D, D+n, greater<int>());
+//        sort(D, D+n, greater<int>());
         
         cerr << ++total << " ";
         bool found = false;
-        for(int i=1; !found && i<32; i++) {
+        for(int i=2; !found && i<32; i++) {
             cerr << "*" << i << " ";
             if (backtrack(i, 0)) {
                 cerr << endl;
