@@ -200,6 +200,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
             selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
         }    
     };
+    d.ontouchend = d.onmouseup;
     this.draw();
 };
 Graph.Renderer.Raphael.prototype = {
@@ -268,6 +269,9 @@ Graph.Renderer.Raphael.prototype = {
         /* re-reference to the node an element belongs to, needed for dragging all elements of a node */
         shape.items.forEach(function(item){ item.set = shape; item.node.style.cursor = "move"; });
         shape.mousedown(this.dragger);
+        if (shape.touchstart)
+            shape.touchstart(this.dragger);
+
 
         var box = shape.getBBox();
         shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)))
