@@ -183,6 +183,31 @@
         width: 50%;
     }
 
+    @media (max-width: 800px) {
+        .main-graph {
+            float: none;
+            width: 100%;
+            position: static;
+        }
+        
+        .graph-list {
+            position: static;
+            float:none;
+            width: 100%;
+            height: auto;
+            border-right: 0px;
+            border-bottom: 2px solid #666;
+        }
+        
+        .result-list {
+            position: static;
+            height: 150px;
+            overflow-x: scroll;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+
+    }
 
 </style>
 
