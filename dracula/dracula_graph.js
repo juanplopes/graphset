@@ -186,7 +186,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
         for (var i in selfRef.graph.edges) {
             selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
         }
-        //selfRef.r.safari();
+        selfRef.r.safari();
         selfRef.isDrag.dx = clientX;
         selfRef.isDrag.dy = clientY;
     };
