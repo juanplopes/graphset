@@ -172,25 +172,31 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
         //e.preventDefault && e.preventDefault();
     };
     
-    this.dragMove = function (dx, dy, x, y) {
-        $('.search-input-container input').val(dx + ' ' + dy + ' ' + x + ' ' + y);
-        var e = { clientX: x, clientY: y };
-        var bBox = selfRef.isDrag.set.getBBox();
-        // TODO round the coordinates here (eg. for proper image representation)
-        var newX = e.clientX - selfRef.isDrag.dx + (bBox.x + bBox.width / 2);
-        var newY = e.clientY - selfRef.isDrag.dy + (bBox.y + bBox.height / 2);
-        /* prevent shapes from being dragged out of the canvas */
-        var clientX = e.clientX - (newX < 20 ? newX - 20 : newX > selfRef.width - 20 ? newX - selfRef.width + 20 : 0);
-        var clientY = e.clientY - (newY < 20 ? newY - 20 : newY > selfRef.height - 20 ? newY - selfRef.height + 20 : 0);
-        selfRef.isDrag.set.translate(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
-        //            console.log(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
-        for (var i in selfRef.graph.edges) {
-            selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
+    
+    this.dragMove = function (e, dy, x, y) {
+        if (selfRef.isDrag) {
+//            $('.search-input-container input').val(dx + ' ' + dy + ' ' + x + ' ' + y);
+            var e = typeof e == 'object' ? e : { clientX: x, clientY: y };
+            var bBox = selfRef.isDrag.set.getBBox();
+            // TODO round the coordinates here (eg. for proper image representation)
+            var newX = e.clientX - selfRef.isDrag.dx + (bBox.x + bBox.width / 2);
+            var newY = e.clientY - selfRef.isDrag.dy + (bBox.y + bBox.height / 2);
+            /* prevent shapes from being dragged out of the canvas */
+            var clientX = e.clientX - (newX < 20 ? newX - 20 : newX > selfRef.width - 20 ? newX - selfRef.width + 20 : 0);
+            var clientY = e.clientY - (newY < 20 ? newY - 20 : newY > selfRef.height - 20 ? newY - selfRef.height + 20 : 0);
+            selfRef.isDrag.set.translate(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
+            //            console.log(clientX - Math.round(selfRef.isDrag.dx), clientY - Math.round(selfRef.isDrag.dy));
+            for (var i in selfRef.graph.edges) {
+                selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
+            }
+            selfRef.r.safari();
+            selfRef.isDrag.dx = clientX;
+            selfRef.isDrag.dy = clientY;
         }
-        selfRef.r.safari();
-        selfRef.isDrag.dx = clientX;
-        selfRef.isDrag.dy = clientY;
     };
+    var d = document.getElementById(element);
+    d.onmousemove = this.dragMove;
+    
     this.dragEnd = function () {
         selfRef.isDrag && (selfRef.isDrag.set.isSelected = false);
         selfRef.isDrag && selfRef.isDrag.set.animate({"fill-opacity": 1}, 500);
