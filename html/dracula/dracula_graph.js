@@ -194,8 +194,8 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
             selfRef.isDrag.dy = clientY;
         }
     };
-    var d = document.getElementById(element);
-    d.onmousemove = this.dragMove;
+//    var d = document.getElementById(element);
+//    d.onmousemove = this.dragMove;
     
     this.dragEnd = function () {
         selfRef.isDrag && (selfRef.isDrag.set.isSelected = false);
