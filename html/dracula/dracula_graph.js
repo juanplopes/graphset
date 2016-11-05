@@ -173,6 +173,7 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
     };
     
     this.dragMove = function (dx, dy, x, y) {
+        $('.search-input-container input').val(dx + ' ' + dy + ' ' + x + ' ' + y);
         var e = { clientX: x, clientY: y };
         var bBox = selfRef.isDrag.set.getBBox();
         // TODO round the coordinates here (eg. for proper image representation)
