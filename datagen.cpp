@@ -80,11 +80,11 @@ int main() {
 
         for(int i=0; i<n; i++)
             O[i] = i;
-//        sort(O, O+n, compare);
+        sort(O, O+n, compare);
         for(int i=0; i<n; i++)
             for(int j=0; j<n; j++)
                 G[i][j] = G2[O[i]][O[j]];
-//        sort(D, D+n, greater<int>());
+        sort(D, D+n, greater<int>());
         
         cerr << ++total << " ";
         bool found = false;

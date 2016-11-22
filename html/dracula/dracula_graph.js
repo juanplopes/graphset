@@ -159,7 +159,8 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
      * Dragging
      */
     this.isDrag = false;
-    this.dragger = function (e) {
+
+    this.dragStart = function (e) {
         this.dx = e.clientX;
         this.dy = e.clientY;
         selfRef.isDrag = this;
@@ -168,13 +169,14 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
         for (var i in selfRef.graph.edges) {
             selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
         }    
-        e.preventDefault && e.preventDefault();
+        //e.preventDefault && e.preventDefault();
     };
     
-    var d = document.getElementById(element);
-    d.onmousemove = function (e) {
-        e = e || window.event;
+    
+    this.dragMove = function (e, dy, x, y) {
         if (selfRef.isDrag) {
+//            $('.search-input-container input').val(dx + ' ' + dy + ' ' + x + ' ' + y);
+            var e = typeof e == 'object' ? e : { clientX: x, clientY: y };
             var bBox = selfRef.isDrag.set.getBBox();
             // TODO round the coordinates here (eg. for proper image representation)
             var newX = e.clientX - selfRef.isDrag.dx + (bBox.x + bBox.width / 2);
@@ -187,12 +189,15 @@ Graph.Renderer.Raphael = function(element, graph, width, height) {
             for (var i in selfRef.graph.edges) {
                 selfRef.graph.edges[i].connection && selfRef.graph.edges[i].connection.draw();
             }
-            //selfRef.r.safari();
+            selfRef.r.safari();
             selfRef.isDrag.dx = clientX;
             selfRef.isDrag.dy = clientY;
         }
     };
-    d.onmouseup = function () {
+//    var d = document.getElementById(element);
+//    d.onmousemove = this.dragMove;
+    
+    this.dragEnd = function () {
         selfRef.isDrag && (selfRef.isDrag.set.isSelected = false);
         selfRef.isDrag && selfRef.isDrag.set.animate({"fill-opacity": 1}, 500);
         selfRef.isDrag = false;
@@ -236,7 +241,7 @@ Graph.Renderer.Raphael.prototype = {
             var oBBox = node.shape.getBBox();
             var opoint = { x: oBBox.x + oBBox.width / 2, y: oBBox.y + oBBox.height / 2};
             node.shape.translate(Math.round(point[0] - opoint.x), Math.round(point[1] - opoint.y));
-            this.r.safari();
+            //this.r.safari();
             return node;
         }/* else, draw new nodes */
 
@@ -267,7 +272,8 @@ Graph.Renderer.Raphael.prototype = {
         //shape.attr({"fill-opacity": .6});
         /* re-reference to the node an element belongs to, needed for dragging all elements of a node */
         shape.items.forEach(function(item){ item.set = shape; item.node.style.cursor = "move"; });
-        shape.mousedown(this.dragger);
+//        shape.mousedown(this.dragger);
+        shape.drag(this.dragMove, this.dragStart, this.dragEnd);
 
         var box = shape.getBBox();
         shape.translate(Math.round(point[0]-(box.x+box.width/2)),Math.round(point[1]-(box.y+box.height/2)))
