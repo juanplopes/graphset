@@ -42,7 +42,7 @@ struct Set{
 
 int N, M, A;
 
-Set S[20];
+Set S[100];
 vector<Set> R[1024];
 int B[1024];
 int O[1024];
@@ -71,14 +71,14 @@ bool backtrack(int k) {
     
     for(int i=0; i<R[k].size(); i++) {
         //if (k==1) cout << " %" << i << endl;
-        Set s = R[k][i];
+       // Set s = R[k][i];
         //if (s.unique == 0) continue;
-        bool valid = true;
+/*        bool valid = true;
         for(int j=1; j<k && valid; j++) {
             if (s.match(R[j][B[j]]) >= 0)
                 valid = false;
         }
-        if (!valid) continue;
+        if (!valid) continue;*/
         
         B[k] = i;
         if(backtrack(k+1)) return true;
@@ -92,11 +92,12 @@ bool compare(int a, int b) {
 
 int main() {
     string line;
-    while(cin >> N >> M >> A) {
+    while(cin >> N) {
         memset(R, 0, sizeof R);
         memset(S, 0, sizeof S);
         getline(cin, line);
 
+        M = A = 0;
         for(int i=0; i<N; i++) {
             getline(cin, line);
             stringstream sin(line);
@@ -104,11 +105,12 @@ int main() {
             S[i] = Set();
             int temp, count = 0;
             while(sin >> temp) {
+                A = max(A, temp);
                 temp--;
                 S[i].normal |= (1<<temp);
                 count++;
             }
-            S[i].unique = M - count;
+            M = max(M, count);
         }
         
         for(int x=1; x<(1<<A); x++) {
@@ -148,8 +150,8 @@ int main() {
                 cout << " / ";
             }
             cout << endl << endl;*/
-            //cout << " " << __builtin_popcount(O[i]) << ":" << R[O[i]].size();
-            cout << " " << __builtin_popcount(i) << ":" << R[i].size();
+            cout << " " << __builtin_popcount(O[i]) << ":" << R[O[i]].size();
+            //cout << " " << __builtin_popcount(i) << ":" << R[i].size();
         }
         cout << endl;
         
@@ -164,7 +166,6 @@ int main() {
         backtrack(1);
         
         cout << endl;
-
     }
     
 }
