@@ -7,10 +7,11 @@
 using namespace std;
 
 struct Set{
-    int normal, unique, sz;
+    unsigned long long normal;
+    int unique, sz;
     
     Set() : normal(0), unique(0), sz(0) {}
-    Set(int normal, int unique) : normal(normal), unique(unique), sz(__builtin_popcount(normal)+unique) {}
+    Set(unsigned long long normal, int unique) : normal(normal), unique(unique), sz(__builtin_popcount(normal)+unique) {}
 
     int match(Set other) {
         int a = __builtin_popcount(normal&other.normal);
@@ -69,9 +70,9 @@ bool backtrack(int k) {
         return true;
     }
     
-    for(int i=0; i<R[k].size(); i++) {
-        //if (k==1) cout << " %" << i << endl;
-       // Set s = R[k][i];
+    for(int i=0; i<R[O[k]].size(); i++) {
+        /* //if (k==1) cout << " %" << i << endl;
+        Set s = R[k][i];
         //if (s.unique == 0) continue;
 /*        bool valid = true;
         for(int j=1; j<k && valid; j++) {
@@ -80,7 +81,7 @@ bool backtrack(int k) {
         }
         if (!valid) continue;*/
         
-        B[k] = i;
+        B[O[k]] = i;
         if(backtrack(k+1)) return true;
     }
     return false;
@@ -96,6 +97,8 @@ int main() {
         memset(R, 0, sizeof R);
         memset(S, 0, sizeof S);
         getline(cin, line);
+        M = A = 0;
+
 
         M = A = 0;
         for(int i=0; i<N; i++) {
@@ -112,8 +115,9 @@ int main() {
             }
             M = max(M, count);
         }
-        
-        for(int x=1; x<(1<<A); x++) {
+
+        int found = 0;
+        for(unsigned long long x=1; x<(1ull<<A); x++) {
             for(int y=0; y<=M; y++) {
                 Set s(x, y);
                 int count=0, id=0;
@@ -124,9 +128,14 @@ int main() {
                     if (mat > 0) { count++; id |= (1<<i); }
                 }
                 
-                if (valid && count > 0 && count < N)
+                if (valid && count > 0 && count < N) {
                     //if (s.size() == M)
                     R[id].push_back(s);
+                    found++;
+                }
+                
+/*                if (found+2 == (1<<N))
+                    break;*/
             }
         }
 
