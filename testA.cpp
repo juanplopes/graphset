@@ -42,7 +42,7 @@ int main() {
     while(cin >> from >> k) {
         int A = from + (1<<(k+1));
         int B = from + (1<<k);
-        cout << (1<<k) << " " << B << " " << A << endl;
+        cout << (1<<k) << endl;
         setInput(from, k);
     }
     
