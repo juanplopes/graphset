@@ -22,7 +22,8 @@ struct Set{
     }
     
     int print(int uniqueStart) {
-        int i=1, temp=normal;
+        int i=1;
+        unsigned long long temp=normal;
         while(temp) {
             if (temp%2) 
                 cout << " " << i;
@@ -44,9 +45,11 @@ struct Set{
 int N, M, A;
 
 Set S[100];
-vector<Set> R[1024];
-int B[1024];
-int O[1024];
+vector<Set> R[102400];
+int B[102400];
+int O[102400];
+int TEMP[100];
+int TEMP2[100];
 
 bool backtrack(int k) {
     if (k+1 == (1<<N)) {
@@ -62,12 +65,20 @@ bool backtrack(int k) {
                         cout << "  ";
                 }
                 cout << ": ";
-                unique = R[i][B[i]].print(unique);
+                if (B[i] != -1)
+                    unique = R[i][B[i]].print(unique);
+                else
+                    cout << "nope";
                 cout << endl;
             }
         }
     
         return true;
+    }
+    
+    if (R[O[k]].size() == 0) {
+        B[O[k]] = -1;
+        return backtrack(k+1);
     }
     
     for(int i=0; i<R[O[k]].size(); i++) {
@@ -117,9 +128,29 @@ int main() {
         }
 
         int found = 0;
-        for(unsigned long long x=1; x<(1ull<<A); x++) {
-            for(int y=0; y<=M; y++) {
+        unsigned long long step = ((1ull<<A) >> 8);
+        cout << step << endl;
+        
+        for(unsigned long long x=1; x<(1ull<<A) && found+2 < (1<<N); x++) {
+            if ((x&(step-1)) == 0) {
+                cout << " %" << (x>>(A-8)) << " ";
+                memset(TEMP, 0, sizeof TEMP);
+                memset(TEMP2, 0, sizeof TEMP2);
+                for(int i=1; i+1<(1<<N); i++) {
+                    int cnt = __builtin_popcount(i);
+                    TEMP[cnt] += R[i].size() > 0;
+                    TEMP2[cnt] += 1;
+                }    
+                for(int i=1; i<N; i++) {
+                    cout << " " << i << ":" << TEMP[i] << "/" << TEMP2[i];
+                }
+                cout << endl;
+            }
+
+            for(int y=0; y<=0; y++) {
                 Set s(x, y);
+                //if (s.size() != M) continue;
+
                 int count=0, id=0;
                 bool valid = true;
                 for(int i=0; i<N && valid; i++) {
@@ -128,16 +159,14 @@ int main() {
                     if (mat > 0) { count++; id |= (1<<i); }
                 }
                 
-                if (valid && count > 0 && count < N) {
-                    //if (s.size() == M)
-                    R[id].push_back(s);
-                    found++;
+                if (valid && count > 0 && count < N && R[id].size() == 0) {
+                        R[id].push_back(s);
+                        found++;
                 }
-                
-/*                if (found+2 == (1<<N))
-                    break;*/
+               
             }
         }
+        cout << endl;
 
         for(int i=1; i+1<(1<<N); i++)
             O[i] = i;
